@@ -1,0 +1,13 @@
+services:
+  authenticationservice:
+    image: ${DOCKER_REGISTRY-}authenticationservice
+    build:
+      context: .
+      dockerfile: AuthenticationService/Dockerfile
+
+  articleservice:
+    image: ${DOCKER_REGISTRY-}articleservice
+    build:
+      context: .
+      dockerfile: ArticleService/Dockerfile
+
