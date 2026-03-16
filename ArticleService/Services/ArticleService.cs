@@ -28,14 +28,14 @@ public class ArticleService(
 			.FirstOrDefaultAsync(a => a.Id == id);
 	}
 
-	public async Task<Article> CreateArticleAsync(CreateArticleRequest request)
+	public async Task<Article> CreateArticleAsync(CreateArticleRequest request, Guid userId)
 	{
 		var article = new Article
 		{
 			Id = Guid.NewGuid(),
 			Title = request.Title,
 			Content = request.Content,
-			AuthorId = request.AuthorId,
+			AuthorId = userId,
 			CreatedAt = DateTime.UtcNow
 		};
 
@@ -83,7 +83,7 @@ public class ArticleService(
 			.ToListAsync();
 	}
 
-	public async Task<Comment?> AddCommentAsync(Guid articleId, AddCommentRequest request)
+	public async Task<Comment?> AddCommentAsync(Guid articleId, AddCommentRequest request, Guid userId)
 	{
 		var article = await dbContext.Articles.FindAsync(articleId);
 
@@ -94,7 +94,7 @@ public class ArticleService(
 		{
 			Id = Guid.NewGuid(),
 			Content = request.Content,
-			AuthorId = request.AuthorId,
+			AuthorId = userId,
 			ArticleId = articleId,
 			CreatedAt = DateTime.UtcNow
 		};
@@ -102,7 +102,7 @@ public class ArticleService(
 		await using var transaction = await outbox.DbContext.Database.BeginTransactionAsync();
 
 		outbox.DbContext.Comments.Add(comment);
-		await outbox.PublishAsync(new CommentAddedEvent(articleId, comment.Id, request.AuthorId));
+		await outbox.PublishAsync(new CommentAddedEvent(articleId, comment.Id, userId));
 		await unitOfWork.CommitAsync();
 
 		return comment;

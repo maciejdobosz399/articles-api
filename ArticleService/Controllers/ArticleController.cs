@@ -1,16 +1,23 @@
 using Asp.Versioning;
 using ArticleService.Models;
 using ArticleService.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ArticleService.Controllers;
 
 [ApiController]
 [ApiVersion(1.0)]
+[Authorize]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class ArticleController(IArticleService articleService) : ControllerBase
 {
+	private Guid GetUserId() =>
+		Guid.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+
 	[HttpGet]
+	[AllowAnonymous]
 	public async Task<IActionResult> GetArticles()
 	{
 		var articles = await articleService.GetArticlesAsync();
@@ -18,6 +25,7 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	}
 
 	[HttpGet("{id:guid}")]
+	[AllowAnonymous]
 	public async Task<IActionResult> GetArticle(Guid id)
 	{
 		var article = await articleService.GetArticleByIdAsync(id);
@@ -27,7 +35,7 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	[HttpPost]
 	public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request)
 	{
-		var article = await articleService.CreateArticleAsync(request);
+		var article = await articleService.CreateArticleAsync(request, GetUserId());
 		return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
 	}
 
@@ -46,6 +54,7 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	}
 
 	[HttpGet("{articleId:guid}/comments")]
+	[AllowAnonymous]
 	public async Task<IActionResult> GetComments(Guid articleId)
 	{
 		var comments = await articleService.GetCommentsAsync(articleId);
@@ -55,7 +64,7 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	[HttpPost("{articleId:guid}/comments")]
 	public async Task<IActionResult> AddComment(Guid articleId, [FromBody] AddCommentRequest request)
 	{
-		var comment = await articleService.AddCommentAsync(articleId, request);
+		var comment = await articleService.AddCommentAsync(articleId, request, GetUserId());
 		return comment is not null ? Created($"api/v1/article/{articleId}/comments/{comment.Id}", comment) : NotFound();
 	}
 
