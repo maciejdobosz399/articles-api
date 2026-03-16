@@ -76,3 +76,13 @@ temp/
 
 # MSBuild Binary and Structured Log
 *.binlog
+
+## ================================
+## ASP.NET Configuration
+## ================================
+
+# Ignore environment-specific configs
+appsettings.*.json
+
+# Allow only base configuration
+!appsettings.json
