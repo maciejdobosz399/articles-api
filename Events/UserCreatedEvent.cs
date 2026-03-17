@@ -1,3 +1,3 @@
 ﻿namespace Events;
 
-public record UserCreatedEvent(string Email) : Event { }
+public record UserCreatedEvent(string UserId, string Email) : Event;

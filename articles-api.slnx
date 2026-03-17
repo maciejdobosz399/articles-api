@@ -5,4 +5,5 @@
     <Build />
   </Project>
   <Project Path="Events/Events.csproj" Id="edf410de-0e93-438a-820f-d353759680fa" />
+  <Project Path="NotificationService/NotificationService.csproj" Id="977a7bf4-7caf-461c-be62-7c5f6da3f99a" />
 </Solution>

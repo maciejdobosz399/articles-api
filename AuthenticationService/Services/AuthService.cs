@@ -40,7 +40,7 @@ public class AuthService(
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(GetRefreshTokenExpirationMinutes());
         await userManager.UpdateAsync(user);
 
-        await outbox.PublishAsync(new UserCreatedEvent(request.Email));
+        await outbox.PublishAsync(new UserCreatedEvent(user.Id.ToString(), request.Email));
         await unitOfWork.CommitAsync();
 
         return new AuthResponse(true, Token: token, RefreshToken: refreshToken);

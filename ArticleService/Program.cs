@@ -57,7 +57,7 @@ builder.UseWolverine(opts =>
 		azure.RetryOptions.Mode = ServiceBusRetryMode.Exponential;
 	}).SystemQueuesAreEnabled(false);
 
-	opts.PublishAllMessages().ToAzureServiceBusQueue("notification-queue");
+	opts.PublishAllMessages().ToAzureServiceBusQueue("article-queue");
 
 	opts.PersistMessagesWithPostgresql(dbConnString, "wolverine");
 	opts.Policies.UseDurableLocalQueues();

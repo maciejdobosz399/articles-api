@@ -11,3 +11,9 @@ services:
       context: .
       dockerfile: ArticleService/Dockerfile
 
+  notificationservice:
+    image: ${DOCKER_REGISTRY-}notificationservice
+    build:
+      context: .
+      dockerfile: NotificationService/Dockerfile
+

@@ -5,7 +5,8 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "authenticationservice": "StartDebugging",
-        "articleservice": "StartDebugging"
+        "articleservice": "StartDebugging",
+        "notificationservice": "StartDebugging"
       }
     }
   }

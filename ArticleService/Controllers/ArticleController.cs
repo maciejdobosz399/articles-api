@@ -42,14 +42,14 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	[HttpPut("{id:guid}")]
 	public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] UpdateArticleRequest request)
 	{
-		var article = await articleService.UpdateArticleAsync(id, request);
+		var article = await articleService.UpdateArticleAsync(id, request, GetUserId());
 		return article is not null ? Ok(article) : NotFound();
 	}
 
 	[HttpDelete("{id:guid}")]
 	public async Task<IActionResult> DeleteArticle(Guid id)
 	{
-		var deleted = await articleService.DeleteArticleAsync(id);
+		var deleted = await articleService.DeleteArticleAsync(id, GetUserId());
 		return deleted ? NoContent() : NotFound();
 	}
 
