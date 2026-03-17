@@ -16,6 +16,9 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	private Guid GetUserId() =>
 		Guid.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
 
+	private string GetUserEmail() =>
+		User.FindFirst(JwtRegisteredClaimNames.Email)!.Value;
+
 	[HttpGet]
 	[AllowAnonymous]
 	public async Task<IActionResult> GetArticles()
@@ -35,7 +38,7 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	[HttpPost]
 	public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request)
 	{
-		var article = await articleService.CreateArticleAsync(request, GetUserId());
+		var article = await articleService.CreateArticleAsync(request, GetUserId(), GetUserEmail());
 		return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
 	}
 
@@ -64,7 +67,7 @@ public class ArticleController(IArticleService articleService) : ControllerBase
 	[HttpPost("{articleId:guid}/comments")]
 	public async Task<IActionResult> AddComment(Guid articleId, [FromBody] AddCommentRequest request)
 	{
-		var comment = await articleService.AddCommentAsync(articleId, request, GetUserId());
+		var comment = await articleService.AddCommentAsync(articleId, request, GetUserId(), GetUserEmail());
 		return comment is not null ? Created($"api/v1/article/{articleId}/comments/{comment.Id}", comment) : NotFound();
 	}
 

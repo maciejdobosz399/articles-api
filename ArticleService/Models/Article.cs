@@ -6,6 +6,7 @@ public class Article
 	public string Title { get; set; } = string.Empty;
 	public string Content { get; set; } = string.Empty;
 	public Guid AuthorId { get; set; }
+	public string AuthorEmail { get; set; } = string.Empty;
 	public DateTime CreatedAt { get; set; }
 	public DateTime? UpdatedAt { get; set; }
 	public ICollection<Comment> Comments { get; set; } = [];

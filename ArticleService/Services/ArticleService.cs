@@ -16,7 +16,7 @@ public class ArticleService(
 
 	public async Task<Article?> GetArticleByIdAsync(Guid id) => await repository.GetByIdWithCommentsAsync(id);
 
-	public async Task<Article> CreateArticleAsync(CreateArticleRequest request, Guid userId)
+	public async Task<Article> CreateArticleAsync(CreateArticleRequest request, Guid userId, string userEmail)
 	{
 		var article = new Article
 		{
@@ -24,6 +24,7 @@ public class ArticleService(
 			Title = request.Title,
 			Content = request.Content,
 			AuthorId = userId,
+			AuthorEmail = userEmail,
 			CreatedAt = DateTime.UtcNow
 		};
 
@@ -64,7 +65,7 @@ public class ArticleService(
 
 	public async Task<IEnumerable<Comment>> GetCommentsAsync(Guid articleId) => await repository.GetCommentsByArticleIdAsync(articleId);
 
-	public async Task<Comment?> AddCommentAsync(Guid articleId, AddCommentRequest request, Guid userId)
+	public async Task<Comment?> AddCommentAsync(Guid articleId, AddCommentRequest request, Guid userId, string userEmail)
 	{
 		var article = await repository.FindByIdAsync(articleId);
 
@@ -81,7 +82,7 @@ public class ArticleService(
 		};
 
 		outbox.DbContext.Comments.Add(comment);
-		await outbox.PublishAsync(new CommentAddedEvent(articleId, comment.Id, userId, article.Title, comment.Content));
+		await outbox.PublishAsync(new CommentAddedEvent(articleId, comment.Id, userId, userEmail, article.AuthorEmail, article.Title, comment.Content));
 		await unitOfWork.CommitAsync();
 
 		return comment;
