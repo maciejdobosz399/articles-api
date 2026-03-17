@@ -6,22 +6,29 @@ using NotificationService.Settings;
 
 namespace NotificationService.Services;
 
-public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger) : IEmailService
+public class EmailService(IOptionsMonitor<EmailSettings> optionsMonitor, ILogger<EmailService> logger) : IEmailService
 {
-	private readonly EmailSettings _settings = options.Value;
+	private static readonly TimeSpan SmtpTimeout = TimeSpan.FromSeconds(30);
 
 	public async Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
 	{
+		var settings = optionsMonitor.CurrentValue;
+
 		var message = new MimeMessage();
-		message.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
+		message.From.Add(new MailboxAddress(settings.SenderName, settings.SenderEmail));
 		message.To.Add(MailboxAddress.Parse(to));
 		message.Subject = subject;
 		message.Body = new TextPart("html") { Text = body };
 
 		using var client = new SmtpClient();
+		client.Timeout = (int)SmtpTimeout.TotalMilliseconds;
 
-		await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls, cancellationToken);
-		await client.AuthenticateAsync(_settings.Username, _settings.Password, cancellationToken);
+		if (settings.AllowInvalidCertificates)
+			client.ServerCertificateValidationCallback = (_, _, _, _) => true;
+
+		var tlsOptions = settings.UseTls ? SecureSocketOptions.StartTls : SecureSocketOptions.StartTlsWhenAvailable;
+		await client.ConnectAsync(settings.Host, settings.Port, tlsOptions, cancellationToken);
+		await client.AuthenticateAsync(settings.Username, settings.Password, cancellationToken);
 		await client.SendAsync(message, cancellationToken);
 		await client.DisconnectAsync(true, cancellationToken);
 

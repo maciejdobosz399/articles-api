@@ -28,6 +28,10 @@ namespace ArticleService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AuthorEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 

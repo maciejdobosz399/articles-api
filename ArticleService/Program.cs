@@ -55,7 +55,8 @@ builder.UseWolverine(opts =>
 	opts.UseAzureServiceBus(azureServiceBusConnectionString, azure =>
 	{
 		azure.RetryOptions.Mode = ServiceBusRetryMode.Exponential;
-	}).SystemQueuesAreEnabled(false);
+	}).SystemQueuesAreEnabled(false)
+		.AutoPurgeOnStartup();
 
 	opts.PublishAllMessages().ToAzureServiceBusQueue("article-queue");
 

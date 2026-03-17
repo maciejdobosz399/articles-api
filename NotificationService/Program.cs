@@ -1,10 +1,12 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
+using MailKit.Security;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using NotificationService.Services;
 using NotificationService.Settings;
 using Wolverine;
 using Wolverine.AzureServiceBus;
+using Wolverine.ErrorHandling;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -39,13 +41,23 @@ builder.UseWolverine(opts =>
     opts.UseAzureServiceBus(azureServiceBusConnectionString, azure =>
     {
         azure.RetryOptions.Mode = ServiceBusRetryMode.Exponential;
-    }).SystemQueuesAreEnabled(false);
+    });
 
-    opts.ListenToAzureServiceBusQueue("article-queue");
+    opts.ListenToAzureServiceBusQueue("article-queue")
+        .CircuitBreaker();
+
+    opts.Policies.OnException<AuthenticationException>().MoveToErrorQueue();
+    opts.Policies.OnException<Exception>()
+        .RetryWithCooldown(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15));
 });
 
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddOptions<EmailSettings>()
+    .BindConfiguration("Smtp")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddHostedService<AzureAppConfigurationRefreshService>();
 
 var host = builder.Build();
 host.Run();
