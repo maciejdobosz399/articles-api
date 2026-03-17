@@ -10,7 +10,7 @@ namespace ArticleService.Controllers;
 [ApiController]
 [ApiVersion(1.0)]
 [Authorize]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/articles")]
 public class ArticleController(IArticleService articleService) : ControllerBase
 {
 	private Guid GetUserId() =>

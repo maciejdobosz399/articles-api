@@ -40,7 +40,7 @@ public class ArticleService(
 		};
 
 		dbContext.Articles.Add(article);
-		await dbContext.SaveChangesAsync();
+		await unitOfWork.CommitAsync();
 
 		return article;
 	}
@@ -56,7 +56,7 @@ public class ArticleService(
 		article.Content = request.Content;
 		article.UpdatedAt = DateTime.UtcNow;
 
-		await dbContext.SaveChangesAsync();
+		await unitOfWork.CommitAsync();
 
 		return article;
 	}
@@ -69,7 +69,7 @@ public class ArticleService(
 			return false;
 
 		dbContext.Articles.Remove(article);
-		await dbContext.SaveChangesAsync();
+		await unitOfWork.CommitAsync();
 
 		return true;
 	}
@@ -99,8 +99,6 @@ public class ArticleService(
 			CreatedAt = DateTime.UtcNow
 		};
 
-		await using var transaction = await outbox.DbContext.Database.BeginTransactionAsync();
-
 		outbox.DbContext.Comments.Add(comment);
 		await outbox.PublishAsync(new CommentAddedEvent(articleId, comment.Id, userId));
 		await unitOfWork.CommitAsync();
@@ -116,8 +114,9 @@ public class ArticleService(
 		if (comment is null)
 			return false;
 
-		dbContext.Comments.Remove(comment);
-		await dbContext.SaveChangesAsync();
+		outbox.DbContext.Comments.Remove(comment);
+		await outbox.PublishAsync(new CommentDeletedEvent(articleId, commentId, comment.AuthorId));
+		await unitOfWork.CommitAsync();
 
 		return true;
 	}

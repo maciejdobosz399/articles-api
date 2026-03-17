@@ -22,8 +22,13 @@ var connectionString = builder.Configuration.GetConnectionString("AzureAppConfig
 builder.Configuration.AddAzureAppConfiguration(options =>
 {
 	options.Connect(connectionString)
-		   .Select(KeyFilter.Any, LabelFilter.Null)
-		   .Select(KeyFilter.Any, builder.Environment.EnvironmentName)
+		   .Select("AuthenticationService:*", LabelFilter.Null)
+		   .Select("AuthenticationService:*", builder.Environment.EnvironmentName)
+		   .TrimKeyPrefix("AuthenticationService:")
+		   .Select("Shared:*", LabelFilter.Null)
+		   .Select("Shared:*", builder.Environment.EnvironmentName)
+		   .TrimKeyPrefix("Shared:")
+
 		   .ConfigureKeyVault(kv =>
 		   {
 			   kv.SetCredential(new DefaultAzureCredential());
