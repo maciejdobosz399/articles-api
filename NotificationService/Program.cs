@@ -41,14 +41,15 @@ builder.UseWolverine(opts =>
     opts.UseAzureServiceBus(azureServiceBusConnectionString, azure =>
     {
         azure.RetryOptions.Mode = ServiceBusRetryMode.Exponential;
-    });
+    }).SystemQueuesAreEnabled(false);
 
-    opts.ListenToAzureServiceBusQueue("article-queue")
-        .CircuitBreaker();
+    opts.ListenToAzureServiceBusQueue("article-queue");
+        //.CircuitBreaker();
 
-    opts.Policies.OnException<AuthenticationException>().MoveToErrorQueue();
-    opts.Policies.OnException<Exception>()
-        .RetryWithCooldown(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15));
+	//commented out because my azure subscription is too small to allow for a dead letter queue, but in production you would want to move messages that fail due to an AuthenticationException to an error queue for later analysis
+	//opts.Policies.OnException<AuthenticationException>().MoveToErrorQueue();
+	//opts.Policies.OnException<Exception>()
+	//    .RetryWithCooldown(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15));
 });
 
 builder.Services.AddOptions<EmailSettings>()
@@ -56,6 +57,7 @@ builder.Services.AddOptions<EmailSettings>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+builder.Services.AddAzureAppConfiguration();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddHostedService<AzureAppConfigurationRefreshService>();
 
