@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="ArticleService/ArticleService.csproj" Id="6eb2e050-e41d-4e6d-9774-6b3c88adb516" />
   <Project Path="AuthenticationService/AuthenticationService.csproj" Id="9d48d443-f15e-4396-bc99-ec7d6cc716ae" />
   <Project Path="docker-compose.dcproj">
