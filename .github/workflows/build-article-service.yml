@@ -1,10 +1,6 @@
 name: Build & Push ArticleService
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "ArticleService/**"
   workflow_dispatch:
 
 env:

@@ -1,11 +1,6 @@
 name: Build & Push NotificationService
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "NotificationService/**"
-      - "Events/**"
   workflow_dispatch:
 
 env:
