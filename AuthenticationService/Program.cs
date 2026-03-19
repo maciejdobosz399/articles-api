@@ -4,6 +4,7 @@ using AuthenticationService.Services;
 using AuthenticationService.Services.Interfaces;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -101,6 +102,11 @@ builder.Services.AddRateLimiter(options =>
     });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+	ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
