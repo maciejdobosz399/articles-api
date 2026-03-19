@@ -38,3 +38,24 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set Web App container
+        run: |
+          az webapp config container set \
+            --name ${{ vars.WEBAPP_NAME }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --docker-custom-image-name ${{ env.IMAGE_NAME }}:latest \
+            --docker-registry-server-url https://${{ vars.REGISTRY_URL }}
+
+      - name: Restart Web App
+        run: |
+          az webapp restart \
+            --name ${{ vars.WEBAPP_NAME }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }}
