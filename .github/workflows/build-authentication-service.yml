@@ -6,6 +6,10 @@ on:
 env:
   IMAGE_NAME: ${{ vars.REGISTRY_URL }}/authentication-service
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -38,3 +42,30 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # --------------------------
+      # Deploy to Web App for Containers
+      # --------------------------
+      - name: Set Web App container image
+        run: |
+          az webapp config container set \
+            --name ${{ vars.AUTH_WEBAPP_NAME }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --container-image-name ${{ env.IMAGE_NAME }}:latest \
+            --docker-registry-server-url https://${{ vars.REGISTRY_URL }} \
+            --docker-registry-server-user ${{ vars.REGISTRY_USERNAME }} \
+            --docker-registry-server-password ${{ secrets.REGISTRY_PASSWORD }} \
+            --environment-variables ASPNETCORE_ENVIRONMENT=Production
+
+      - name: Restart Web App
+        run: |
+          az webapp restart \
+            --name ${{ vars.AUTH_WEBAPP_NAME }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }}

@@ -53,7 +53,7 @@ jobs:
       - name: Set Web App container
         run: |
           az webapp config container set \
-            --name ${{ vars.WEBAPP_NAME }} \
+            --name ${{ vars.ARTICLE_WEBAPP_NAME }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --container-image-name ${{ env.IMAGE_NAME }}:latest \
             --container-registry-url https://${{ vars.REGISTRY_URL }}
@@ -61,5 +61,5 @@ jobs:
       - name: Restart Web App
         run: |
           az webapp restart \
-            --name ${{ vars.WEBAPP_NAME }} \
+            --name ${{ vars.ARTICLE_WEBAPP_NAME }} \
             --resource-group ${{ vars.RESOURCE_GROUP }}
