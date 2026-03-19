@@ -62,7 +62,6 @@ jobs:
             --docker-registry-server-url https://${{ vars.REGISTRY_URL }} \
             --docker-registry-server-user ${{ vars.REGISTRY_USERNAME }} \
             --docker-registry-server-password ${{ secrets.REGISTRY_PASSWORD }} \
-            --environment-variables ASPNETCORE_ENVIRONMENT=Production
 
       - name: Restart Web App
         run: |
