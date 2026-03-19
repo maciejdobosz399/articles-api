@@ -55,8 +55,8 @@ jobs:
           az webapp config container set \
             --name ${{ vars.WEBAPP_NAME }} \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --docker-custom-image-name ${{ env.IMAGE_NAME }}:latest \
-            --docker-registry-server-url https://${{ vars.REGISTRY_URL }}
+            --container-image-name ${{ env.IMAGE_NAME }}:latest \
+            --container-registry-url https://${{ vars.REGISTRY_URL }}
 
       - name: Restart Web App
         run: |
