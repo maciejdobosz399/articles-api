@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: articles-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: articles-api
+  template:
+    metadata:
+      labels:
+        app: articles-api
+    spec:
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: articles-api
+          image: articlesregistry.azurecr.io/article-service:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: ConnectionStrings__AzureAppConfiguration
+              valueFrom:
+                secretKeyRef:
+                  name: appconfig-secret
+                  key: AzureAppConfiguration

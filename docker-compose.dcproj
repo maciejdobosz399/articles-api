@@ -9,6 +9,11 @@
     <None Include=".github\workflows\build-article-service.yml" />
     <None Include=".github\workflows\build-authentication-service.yml" />
     <None Include=".github\workflows\build-notification-service.yml" />
+    <None Include="article-service-service.yaml" />
+    <None Include="auth-service-service.yaml" />
+    <None Include="docker-compose.override.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>
