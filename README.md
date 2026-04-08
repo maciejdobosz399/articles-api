@@ -8,26 +8,30 @@ A portfolio project demonstrating a **microservices-based** article platform bui
 
 ## Architecture Overview
 
-The solution follows a **microservices architecture** with four projects:
+The solution follows a **microservices architecture** with five projects:
 
 ```
-┌──────────────────────┐      Azure Service Bus       ┌──────────────────────────┐
-│  AuthenticationService│ ──── (article-queue) ──────► │   NotificationService    │
-│       (Web API)       │                              │   (.NET Worker Service)  │
-└──────────────────────┘                               └──────────────────────────┘
-                                                                  ▲
-┌──────────────────────┐      Azure Service Bus                   │
-│   ArticleService     │ ──── (article-queue) ────────────────────┘
-│       (Web API)      │
-└──────────────────────┘
+                              ┌──────────────────────┐
+              ┌──────────────►│  AuthenticationService│──┐
+              │  /api/v1/auth │       (Web API)       │  │
+              │               └──────────────────────┘  │
+┌───────────────────┐                                    │  Azure Service Bus   ┌──────────────────────────┐
+│    ApiGateway     │                                    ├────(article-queue)──►│   NotificationService    │
+│   (YARP Proxy)    │                                    │                      │   (.NET Worker Service)  │
+└───────────────────┘                                    │                      └──────────────────────────┘
+              │               ┌──────────────────────┐  │
+              └──────────────►│   ArticleService     │──┘
+               /api/v1/       │       (Web API)      │
+               articles       └──────────────────────┘
 
-┌──────────────────────┐
-│       Events         │  (Shared library — domain event contracts)
-└──────────────────────┘
+                              ┌──────────────────────┐
+                              │       Events         │  (Shared library — domain event contracts)
+                              └──────────────────────┘
 ```
 
 | Service | Type | Responsibility |
 |---|---|---|
+| **ApiGateway** | ASP.NET Core + YARP | Reverse proxy / API gateway — single entry point that routes requests to backend services and aggregates OpenAPI documentation |
 | **AuthenticationService** | ASP.NET Core Web API | User registration, login, JWT token issuance & refresh, token revocation, forgot/reset password |
 | **ArticleService** | ASP.NET Core Web API | CRUD operations for articles and comments, authorization enforcement |
 | **NotificationService** | .NET Worker Service | Consumes domain events and sends transactional emails (welcome, comment alerts, password resets) |
@@ -39,6 +43,8 @@ The solution follows a **microservices architecture** with four projects:
 
 ### Microservices & Distributed Systems
 - Independent, single-responsibility services with separate databases and deployment units
+- **API Gateway** using **YARP (Yet Another Reverse Proxy)** as a single entry point with route-based request forwarding
+- Aggregated **Swagger UI** at the gateway proxying OpenAPI documents from downstream services
 - **Asynchronous messaging** via **Azure Service Bus** for decoupled inter-service communication
 - **Wolverine** as the message bus / mediator framework with durable outbox messaging and Azure Service Bus transport
 - Shared **domain event contracts** (`UserCreatedEvent`, `CommentAddedEvent`, `CommentDeletedEvent`, `PasswordResetRequestedEvent`)
@@ -102,6 +108,9 @@ The solution follows a **microservices architecture** with four projects:
 
 ```
 articles-api/
+├── ApiGateway/                 # YARP reverse proxy / API gateway
+│   ├── Dockerfile
+│   └── Program.cs
 ├── ArticleService/             # Articles & comments Web API
 │   ├── Controllers/
 │   ├── Models/
@@ -156,6 +165,7 @@ docker-compose up --build
    - `AzureServiceBus` — Azure Service Bus connection string
 2. Run each service:
    ```bash
+   dotnet run --project ApiGateway
    dotnet run --project ArticleService
    dotnet run --project AuthenticationService
    dotnet run --project NotificationService
@@ -164,6 +174,8 @@ docker-compose up --build
 ---
 
 ## API Endpoints
+
+All requests are routed through the **ApiGateway** (default `http://localhost:5000` in development).
 
 ### AuthenticationService (`/api/v1/auth`)
 
