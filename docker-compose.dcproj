@@ -9,6 +9,11 @@
     <None Include=".github\workflows\build-article-service.yml" />
     <None Include=".github\workflows\build-authentication-service.yml" />
     <None Include=".github\workflows\build-notification-service.yml" />
+    <None Include="ApiGateway\ApiGateway.csproj" />
+    <None Include="ApiGateway\appsettings.Development.json" />
+    <None Include="ApiGateway\appsettings.json" />
+    <None Include="ApiGateway\Dockerfile" />
+    <None Include="ApiGateway\Program.cs" />
     <None Include="article-service-service.yaml" />
     <None Include="auth-service-service.yaml" />
     <None Include="docker-compose.override.yml">

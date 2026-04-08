@@ -1,4 +1,13 @@
 services:
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    depends_on:
+      - authenticationservice
+      - articleservice
+
   authenticationservice:
     image: ${DOCKER_REGISTRY-}authenticationservice
     build:
