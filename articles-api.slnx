@@ -2,9 +2,13 @@
   <Folder Name="/Solution Items/">
     <File Path="README.md" />
   </Folder>
-  <Folder Name="/Solution Items/k8s/">
+  <Folder Name="/Solution Items/infra/" />
+  <Folder Name="/Solution Items/infra/k8s/">
     <File Path="article-service-deployment.yaml" />
     <File Path="auth-service-deployment.yaml" />
+  </Folder>
+  <Folder Name="/Solution Items/infra/terraform/">
+    <File Path="article-service.tf" />
   </Folder>
   <Project Path="ApiGateway/ApiGateway.csproj" />
   <Project Path="ArticleService/ArticleService.csproj" Id="6eb2e050-e41d-4e6d-9774-6b3c88adb516" />
